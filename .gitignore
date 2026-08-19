@@ -1,0 +1,35 @@
+# ===== Python 编译缓存（机器自动生成，无需上传）=====
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ===== 打包/安装构建产物 =====
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ===== 虚拟环境 =====
+.venv/
+venv/
+env/
+
+# ===== 密钥 / 真实配置（重要：绝不可上传）=====
+.env
+.env.*
+!.env.example
+
+# ===== 运行时生成的数据 =====
+data/*.sqlite
+data/*.db
+
+# ===== 编辑器 / 系统文件 =====
+.DS_Store
+.idea/
+.vscode/
+
+# ===== 测试 / 覆盖率缓存 =====
+.pytest_cache/
+.coverage
+htmlcov/

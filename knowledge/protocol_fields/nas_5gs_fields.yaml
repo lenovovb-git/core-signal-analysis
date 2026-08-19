@@ -1,0 +1,159 @@
+# NAS-5GS协议关键字段说明
+
+## 通用字段
+- frame.number: 帧号
+- frame.time: 时间戳
+- nas_5gs.message_type: NAS-5GS消息类型
+- nas_5gs.security_header_type: 安全头类型
+- nas_5gs.protocol_discriminator: 协议鉴别器
+
+## 消息类型 (message_type)
+### 注册管理消息 (0x41)
+- 0x41: Registration request (注册请求)
+- 0x42: Registration accept (注册接受)
+- 0x43: Registration complete (注册完成)
+- 0x44: Registration reject (注册拒绝)
+- 0x45: Deregistration request (去注册请求)
+- 0x46: Deregistration accept (去注册接受)
+
+### 会话管理消息 (0x2e)
+- 0x2d: PDU session establishment request (PDU会话建立请求)
+- 0x2e: PDU session establishment accept (PDU会话建立接受)
+- 0x2f: PDU session establishment reject (PDU会话建立拒绝)
+- 0x30: PDU session authentication command (PDU会话鉴权命令)
+- 0x31: PDU session authentication complete (PDU会话鉴权完成)
+- 0x32: PDU session authentication result (PDU会话鉴权结果)
+
+### 服务请求消息
+- 0x4c: Service request (服务请求)
+- 0x4d: Service accept (服务接受)
+- 0x4e: Service reject (服务拒绝)
+
+### 鉴权消息
+- 0x56: Authentication request (鉴权请求)
+- 0x57: Authentication response (鉴权响应)
+- 0x58: Authentication reject (鉴权拒绝)
+- 0x59: Authentication failure (鉴权失败)
+
+## 关键信息元素 (IE)
+### 注册相关IE
+- nas_5gs.nmm.registration_type: 注册类型 (初始/移动/周期)
+- nas_5gs.nmm.5gs_mobile_identity: 5G移动标识 (SUCI/SUPI/5G-GUTI)
+- nas_5gs.nmm.5gs_tracking_area_identity: 5G跟踪区标识
+- nas_5gs.nmm.last_visited_registered_tai: 最后访问注册TAI
+- nas_5gs.nmm.ue_network_capability: UE网络能力
+
+### 会话相关IE
+- nas_5gs.sm.pdu_session_id: PDU会话ID (0-15)
+- nas_5gs.sm.s_nssai: 单网络切片选择辅助信息
+- nas_5gs.sm.dnn: 数据网络名称
+- nas_5gs.sm.pdu_session_type: PDU会话类型 (IPv4/IPv6/IPv4v6/Ethernet/Unstructured)
+- nas_5gs.sm.5gsm_capability: 5GSM能力
+
+### 鉴权相关IE
+- nas_5gs.nmm.auth_param_rand: 鉴权参数RAND
+- nas_5gs.nmm.auth_param_autn: 鉴权参数AUTN
+- nas_5gs.nmm.auth_response_param_res: 鉴权响应参数RES
+- nas_5gs.nmm.auth_response_param_res_star: 鉴权响应参数RES*
+- nas_5gs.nmm.auth_failure_param_auts: 鉴权失败参数AUTS
+
+## 原因值 (cause)
+### 注册拒绝原因 (Registration reject)
+- 3: Illegal UE (非法UE)
+- 6: Illegal ME (非法ME)
+- 7: EPS services not allowed (EPS服务不允许)
+- 8: EPS services and non-EPS services not allowed (EPS和非EPS服务都不允许)
+- 9: UE identity cannot be derived by the network (网络无法推导UE身份)
+- 10: Implicitly deregistered (隐式去注册)
+- 11: PLMN not allowed (PLMN不允许)
+- 12: Tracking area not allowed (跟踪区不允许)
+- 13: Roaming not allowed in this tracking area (此跟踪区不允许漫游)
+- 14: No Suitable Cells In Tracking Area (跟踪区内无合适小区)
+- 15: MSC temporarily not reachable (MSC暂时不可达)
+- 16: Network failure (网络失败)
+- 17: CS domain not available (CS域不可用)
+- 20: MAC failure (MAC失败)
+- 21: Synch failure (同步失败)
+- 22: Congestion (拥塞)
+- 26: Insufficient resources (资源不足)
+- 27: Missing or unknown DNN (缺少或未知DNN)
+- 28: Requested service option not subscribed (请求的服务选项未签约)
+- 29: Service option temporarily out of order (服务选项暂时故障)
+- 30: PTI already in use (PTI已在使用)
+- 31: Regular deactivation (常规去激活)
+- 32: EPS QoS not accepted (EPS QoS不接受)
+- 33: Network failure (网络失败)
+- 34: Reactivation requested (请求重新激活)
+- 35: Semantic error in the TFT operation (TFT操作语义错误)
+- 36: Syntactical error in the TFT operation (TFT操作语法错误)
+- 37: Invalid EPS bearer identity (无效EPS承载标识)
+- 38: Semantic errors in packet filter(s) (分组过滤器语义错误)
+- 39: Syntactical errors in packet filter(s) (分组过滤器语法错误)
+- 40: UE requested PDN connectivity not accepted (UE请求的PDN连接不接受)
+- 41: UE requested PDN disconnection not accepted (UE请求的PDN断开不接受)
+- 42: Handover not accepted (切换不接受)
+- 43: PDN type IPv4 only allowed (只允许IPv4 PDN类型)
+- 44: PDN type IPv6 only allowed (只允许IPv6 PDN类型)
+- 45: Single address bearers only allowed (只允许单地址承载)
+- 46: ESM information not received (未收到ESM信息)
+- 47: PTI mismatch (PTI不匹配)
+- 48: Last PDN disconnection not allowed (不允许最后PDN断开)
+- 49: PDN type IPv4v6 only allowed (只允许IPv4v6 PDN类型)
+- 50: PDN type non-IP only allowed (只允许非IP PDN类型)
+- 51: Multiple accesses to a PDN connection not allowed (不允许多接入到PDN连接)
+- 52: Requested service option not authorized (请求的服务选项未授权)
+- 53: Requested APN not supported in this RAT PLMN (此RAT PLMN不支持请求的APN)
+- 54: RAT type not allowed (RAT类型不允许)
+- 55: ESM failure (ESM失败)
+- 56: UE context without TFT already activated (UE上下文已激活但无TFT)
+- 57: Invalid PTI value (无效PTI值)
+- 58: Missing or unknown APN (缺少或未知APN)
+- 59: Unknown PDN type (未知PDN类型)
+- 60: Unknown or missing QoS parameters (未知或缺少QoS参数)
+- 61: User authentication failed (用户鉴权失败)
+- 62: Request rejected by Serving GW or PDN GW (服务GW或PDN GW拒绝请求)
+- 63: Request rejected, unspecified (请求拒绝，未指定)
+- 64: Service option not supported (服务选项不支持)
+- 65: Requested service option not subscribed (请求的服务选项未签约)
+- 66: Service option temporarily out of order (服务选项暂时故障)
+- 67: PTI already in use (PTI已在使用)
+- 68: Regular deactivation (常规去激活)
+- 69: EPS QoS not accepted (EPS QoS不接受)
+- 70: Network failure (网络失败)
+- 71: Reactivation requested (请求重新激活)
+- 72: Invalid EPS bearer identity (无效EPS承载标识)
+- 73: Semantic errors in packet filter(s) (分组过滤器语义错误)
+- 74: Syntactical errors in packet filter(s) (分组过滤器语法错误)
+- 75: UE requested PDN connectivity not accepted (UE请求的PDN连接不接受)
+- 76: UE requested PDN disconnection not accepted (UE请求的PDN断开不接受)
+- 77: Handover not accepted (切换不接受)
+- 78: PDN type IPv4 only allowed (只允许IPv4 PDN类型)
+- 79: PDN type IPv6 only allowed (只允许IPv6 PDN类型)
+- 80: Single address bearers only allowed (只允许单地址承载)
+- 81: ESM information not received (未收到ESM信息)
+- 82: PTI mismatch (PTI不匹配)
+- 83: Last PDN disconnection not allowed (不允许最后PDN断开)
+- 84: PDN type IPv4v6 only allowed (只允许IPv4v6 PDN类型)
+- 85: PDN type non-IP only allowed (只允许非IP PDN类型)
+- 86: Multiple accesses to a PDN connection not allowed (不允许多接入到PDN连接)
+- 87: Requested service option not authorized (请求的服务选项未授权)
+- 88: Requested APN not supported in this RAT PLMN (此RAT PLMN不支持请求的APN)
+- 89: RAT type not allowed (RAT类型不允许)
+- 90: ESM failure (ESM失败)
+- 91: UE context without TFT already activated (UE上下文已激活但无TFT)
+- 92: Invalid PTI value (无效PTI值)
+- 93: Missing or unknown APN (缺少或未知APN)
+- 94: Unknown PDN type (未知PDN类型)
+- 95: Unknown or missing QoS parameters (未知或缺少QoS参数)
+- 96: User authentication failed (用户鉴权失败)
+- 97: Request rejected by Serving GW or PDN GW (服务GW或PDN GW拒绝请求)
+- 98: Request rejected, unspecified (请求拒绝，未指定)
+- 99: Service option not supported (服务选项不支持)
+
+## 解析提示
+1. 先看message_type确定消息类型
+2. 如果是reject消息，重点关注cause字段
+3. 通过5gs_mobile_identity关联UE
+4. 通过pdu_session_id关联会话
+5. s_nssai和dnn用于判断切片和数据网络
+6. 鉴权相关消息关注RAND/AUTN/RES/AUTS等参数

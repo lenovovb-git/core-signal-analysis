@@ -1,0 +1,192 @@
+# NGAP 专家规则库 - 5G核心网信令分析
+
+- id: ngap_pdu_session_resource_setup_radio_unspecified
+  title: PDU Session Resource Setup 失败，radioNetwork unspecified
+  domain: 5GC
+  protocol: NGAP
+  match:
+    procedure: PDU Session Resource Setup
+    message_type: PDUSessionResourceSetupResponse
+    result: failure
+    cause_category: radioNetwork
+    cause_value: unspecified
+  possible_causes:
+    - title: gNB未配置对应QoS或DRB模板
+      confidence: high
+      evidence:
+        - cause_category为radioNetwork
+        - 失败发生在会话资源建立阶段
+      checks:
+        - 检查5QI到DRB的映射配置
+        - 检查gNB是否支持该S-NSSAI
+        - 检查小区侧QoS Flow到DRB的映射策略
+    - title: SMF下发参数与接入侧能力不匹配
+      confidence: medium
+      evidence:
+        - 请求消息中包含QoS Flow或S-NSSAI信息
+      checks:
+        - 对比SMF下发的5QI、ARP、AMBR
+        - 对比gNB支持的切片、DNN、QoS模板
+    - title: 空口资源不足导致DRB建立失败
+      confidence: low
+      evidence:
+        - radioNetwork类别通常与空口相关
+      checks:
+        - 检查目标小区的资源利用率
+        - 检查UE的无线质量
+  missing_info:
+    - PDU Session Resource Setup Request中的S-NSSAI
+    - QoS Flow参数
+    - gNB小区切片配置
+
+- id: ngap_ue_context_release_transport
+  title: UE Context Release，transport资源不可用
+  domain: 5GC
+  protocol: NGAP
+  match:
+    procedure: UE Context Release
+    message_type: UEContextReleaseCommand
+    result: failure
+    cause_category: transport
+    cause_value: transport_resource_unavailable
+  possible_causes:
+    - title: N2接口链路故障或资源不足
+      confidence: high
+      evidence:
+        - cause为transport_resource_unavailable
+        - UE Context Release通常由传输层问题触发
+      checks:
+        - 检查gNB与AMF之间的SCTP连接状态
+        - 检查N2接口的链路状态和带宽利用率
+        - 检查网络设备是否有端口告警
+    - title: gNB侧处理能力不足
+      confidence: medium
+      evidence:
+        - 传输资源不可用可能源于gNB内部资源耗尽
+      checks:
+        - 检查gNB的CPU/内存使用率
+        - 检查gNB上的UE连接数是否超限
+    - title: AMF发起的正常释放
+      confidence: low
+      evidence:
+        - UE Context Release可能是正常的网络管理行为
+      checks:
+        - 检查释放前是否有其他异常信令
+        - 检查是否为正常的去注册流程
+  missing_info:
+    - UE Context Release的具体触发原因
+    - N2接口的SCTP偶联状态
+    - gNB侧的资源使用情况
+
+- id: ngap_handover_preparation_failure_radio
+  title: Handover Preparation Failure，radioNetwork原因
+  domain: 5GC
+  protocol: NGAP
+  match:
+    procedure: Handover
+    message_type: HandoverPreparationFailure
+    result: failure
+    cause_category: radioNetwork
+  possible_causes:
+    - title: 目标小区不支持源侧切片
+      confidence: high
+      evidence:
+        - Handover Preparation Failure通常与目标侧资源相关
+        - 切片支持不一致是最常见原因
+      checks:
+        - 对比源小区和目标小区的S-NSSAI配置
+        - 检查目标gNB的切片开通状态
+    - title: 目标小区资源不足
+      confidence: medium
+      evidence:
+        - radioNetwork类别指向无线侧问题
+      checks:
+        - 检查目标小区的PRB利用率
+        - 检查目标小区的RRC连接数
+    - title: Xn接口配置异常
+      confidence: medium
+      evidence:
+        - Xn Handover依赖Xn接口
+      checks:
+        - 检查源gNB与目标gNB之间的Xn链路状态
+        - 检查Xn接口的IP路由配置
+  missing_info:
+    - 目标小区的切片配置
+    - Xn接口状态
+    - 源侧和目标侧的S-NSSAI对比
+
+- id: ngap_initial_context_setup_failure_protocol
+  title: Initial Context Setup Failure，protocol错误
+  domain: 5GC
+  protocol: NGAP
+  match:
+    procedure: Initial Context Setup
+    message_type: InitialContextSetupFailure
+    result: failure
+    cause_category: protocol
+  possible_causes:
+    - title: AMF发送的NAS消息编码错误
+      confidence: high
+      evidence:
+        - protocol类别指向消息格式或内容问题
+        - InitialContextSetupRequest中携带NAS-PDU
+      checks:
+        - 检查Registration Accept的NAS消息内容
+        - 对比3GPP规范检查必选IE是否完整
+    - title: gNB不支持AMF指示的UE安全能力
+      confidence: medium
+      evidence:
+        - 安全能力协商失败会触发协议错误
+      checks:
+        - 检查Request中UE Security Capabilities
+        - 检查gNB支持的加密和完整性保护算法
+    - title: 消息中携带不支持的IE或IE值
+      confidence: low
+      evidence:
+        - 协议兼容性问题
+      checks:
+        - 检查是否存在不支持的扩展IE
+        - 对比AMF和gNB的软件版本
+  missing_info:
+    - InitialContextSetupRequest的完整字段
+    - gNB的软件版本
+    - AMF的软件版本
+
+- id: ngap_pdu_session_resource_setup_transport
+  title: PDU Session Resource Setup 失败，transport资源不可用
+  domain: 5GC
+  protocol: NGAP
+  match:
+    procedure: PDU Session Resource Setup
+    message_type: PDUSessionResourceSetupResponse
+    result: failure
+    cause_category: transport
+    cause_value: transport_resource_unavailable
+  possible_causes:
+    - title: N3接口GTP-U隧道资源不足
+      confidence: high
+      evidence:
+        - transport类别指向传输层
+        - PDU Session建立依赖N3接口GTP隧道
+      checks:
+        - 检查gNB到UPF的N3接口带宽
+        - 检查gNB侧的GTP-U TEID分配能力
+        - 检查UPF侧的N3接口资源
+    - title: N2接口SCTP偶联异常
+      confidence: medium
+      evidence:
+        - N2接口SCTP偶联承载NGAP消息
+      checks:
+        - 检查gNB与AMF之间SCTP的路径管理
+        - 检查SCTP重传率
+    - title: 传输网络QoS无法满足要求
+      confidence: low
+      evidence:
+        - 5QI对应的传输QoS要求可能超出网络能力
+      checks:
+        - 检查传输网络的QoS配置
+        - 检查DSCP标记策略是否正确
+  missing_info:
+    - gNB到UPF的N3接口配置
+    - SCTP连接状态
+    - 传输网络的DSCP/QoS策略

@@ -1,0 +1,191 @@
+# NAS-5GS 专家规则库 - 5G核心网信令分析
+
+- id: nas_5gs_registration_reject_cause_15
+  title: "Registration Reject，Cause #15 (No Suitable Cells In Tracking Area)"
+  domain: 5GC
+  protocol: NAS-5GS
+  match:
+    procedure: Registration
+    message_type: RegistrationReject
+    result: failure
+    cause_value: "15"
+  possible_causes:
+    - title: TAI不在AMF的服务范围内
+      confidence: high
+      evidence:
+        - Cause #15明确表示跟踪区内无合适小区
+        - 注册请求中的TAI可能不属于当前AMF
+      checks:
+        - 检查AMF的TAI配置列表是否包含请求中的TAI
+        - 检查gNB与AMF之间的TAI映射是否正确
+        - 检查AMF的N2接口是否配置了对应TAI
+    - title: gNB与AMF的N2接口未建立
+      confidence: medium
+      evidence:
+        - 如果N2接口未建立，AMF无法为TAI提供服务
+      checks:
+        - 检查gNB的NG Setup是否成功
+        - 检查AMF侧的gNB状态是否为Connected
+    - title: TAI配置错误或未在AMF中开通
+      confidence: medium
+      evidence:
+        - TAI需要预先在AMF中配置
+      checks:
+        - 检查AMF的配置文件中TAI列表
+        - 检查AMF是否已开通该TAI相关的业务
+  missing_info:
+    - Registration Request中的完整TAI
+    - AMF的TAI配置
+    - gNB的NG Setup状态
+
+- id: nas_5gs_registration_reject_cause_11
+  title: "Registration Reject，Cause #11 (PLMN Not Allowed)"
+  domain: 5GC
+  protocol: NAS-5GS
+  match:
+    procedure: Registration
+    message_type: RegistrationReject
+    result: failure
+    cause_value: "11"
+  possible_causes:
+    - title: UE的PLMN不在AMF允许列表中
+      confidence: high
+      evidence:
+        - Cause #11表示PLMN不允许
+        - 可能涉及漫游限制
+      checks:
+        - 检查AMF配置的允许PLMN列表
+        - 检查UE的SUPI/IMSI中的PLMN
+        - 检查是否有漫游协议限制
+    - title: AMF未配置支持该PLMN
+      confidence: medium
+      evidence:
+        - AMF需要明确配置支持的PLMN
+      checks:
+        - 检查AMF配置文件中的PLMN ID
+        - 检查是否有PLMN级别的接入控制策略
+    - title: UE的USIM卡PLMN与网络不匹配
+      confidence: low
+      evidence:
+        - 终端侧PLMN选择问题
+      checks:
+        - 检查UE的PLMN选择列表
+        - 检查UE的USIM卡归属PLMN
+  missing_info:
+    - UE的SUPI/IMSI信息
+    - AMF的PLMN配置
+    - UE的PLMN选择结果
+
+- id: nas_5gs_pdu_session_establishment_reject_cause_28
+  title: "PDU Session Establishment Reject，Cause #28 (Requested service option not subscribed)"
+  domain: 5GC
+  protocol: NAS-5GS
+  match:
+    procedure: PDU Session Establishment
+    message_type: PDUSessionEstablishmentReject
+    result: failure
+    cause_value: "28"
+  possible_causes:
+    - title: 用户未签约该DNN
+      confidence: high
+      evidence:
+        - Cause #28表明请求的服务未签约
+        - DNN是最常见的未签约服务
+      checks:
+        - 检查UDM中用户签约的DNN列表
+        - 检查SMF是否已获取正确的签约数据
+        - 检查UDM与SMF之间的N10接口状态
+    - title: 用户未签约该S-NSSAI
+      confidence: medium
+      evidence:
+        - 切片服务也需要用户签约
+      checks:
+        - 检查UDM中用户签约的切片列表
+        - 对比PDU Session建立请求中的S-NSSAI
+    - title: UDM返回的签约数据异常
+      confidence: low
+      evidence:
+        - 签约数据获取失败可能导致此错误
+      checks:
+        - 检查Nudm_SDM_Get的响应
+        - 检查UDM是否正常运行
+  missing_info:
+    - PDU Session Establishment Request中的DNN
+    - PDU Session Establishment Request中的S-NSSAI
+    - UDM中的用户签约数据
+
+- id: nas_5gs_service_reject_cause_7
+  title: "Service Reject，Cause #7 (EPS services not allowed)"
+  domain: 5GC
+  protocol: NAS-5GS
+  match:
+    procedure: Service Request
+    message_type: ServiceReject
+    result: failure
+    cause_value: "7"
+  possible_causes:
+    - title: UE的EPS服务被核心网禁止
+      confidence: high
+      evidence:
+        - Cause #7明确表示EPS服务不允许
+        - 通常由HSS/UDM签约数据决定
+      checks:
+        - 检查UDM中用户的EPS服务签约状态
+        - 检查用户的接入限制数据
+        - 检查AMF是否将EPS服务状态正确传给UE
+    - title: 5G到4G互操作配置问题
+      confidence: medium
+      evidence:
+        - EPS services not allowed可能关联互操作配置
+      checks:
+        - 检查AMF的Interworking配置
+        - 检查N26接口的配置状态
+    - title: 用户在5G核心网注册但EPS签约被限制
+      confidence: medium
+      evidence:
+        - 某些用户可能只签约了5G服务
+      checks:
+        - 检查用户的Access Restriction Data
+        - 检查是否有运营商策略限制
+  missing_info:
+    - 用户签约数据中的EPS服务状态
+    - AMF的Interworking配置
+    - 用户的Access Restriction Data
+
+- id: nas_5gs_auth_reject_cause_21
+  title: "Authentication Reject，Cause #21 (Synch failure)"
+  domain: 5GC
+  protocol: NAS-5GS
+  match:
+    procedure: Authentication
+    message_type: AuthenticationReject
+    result: failure
+    cause_value: "21"
+  possible_causes:
+    - title: USIM卡与AUSF之间的序列号不同步
+      confidence: high
+      evidence:
+        - Cause #21表示同步失败
+        - 鉴权同步失败是最常见的鉴权问题
+      checks:
+        - 检查AUSF发送的AUTS参数
+        - 检查UDM中存储的序列号SQN
+        - 检查是否有USIM卡鉴权参数异常
+    - title: UDM与AUSF之间的鉴权向量不匹配
+      confidence: medium
+      evidence:
+        - 鉴权向量同步问题
+      checks:
+        - 检查Nudm_UEAuthentication_Get的响应
+        - 检查AUSF是否接收到正确的鉴权向量
+    - title: UE的鉴权算法与网络不一致
+      confidence: low
+      evidence:
+        - 5G AKA和EAP-AKA'算法选择问题
+      checks:
+        - 检查AMF选择的鉴权方法
+        - 检查UE支持的鉴权算法
+  missing_info:
+    - AMF选择的鉴权方法
+    - UDM中存储的SQN
+    - AUSF返回的鉴权向量信息

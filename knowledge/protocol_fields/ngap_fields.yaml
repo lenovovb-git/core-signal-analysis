@@ -1,0 +1,89 @@
+# NGAP协议关键字段说明
+
+## 通用字段
+- frame.number: 帧号，Wireshark中的唯一标识
+- frame.time: 时间戳
+- ngap.ProcedureCode: 过程码，标识NGAP消息类型
+- ngap.CauseGroup: 原因组，失败原因的大类
+- ngap.Cause_value: 原因值，具体的失败原因代码
+
+## 过程码映射 (ProcedureCode)
+- 0: AMFConfigurationUpdate
+- 1: AMFStatusIndication
+- 12: InitialContextSetup
+- 19: PDUSessionResourceSetup
+- 21: PDUSessionResourceRelease
+- 23: UEContextRelease
+- 24: HandoverPreparation
+- 29: InitialUEMessage
+- 31: DownlinkNASTransport
+- 32: UplinkNASTransport
+
+## 原因组 (CauseGroup) 和原因值 (Cause_value)
+### radioNetwork (无线网络原因)
+- 0: unspecified (未指定)
+- 1: tx2relocoverall_expiry (Txn重定位超时)
+- 2: successful_handover (成功切换)
+- 3: release_due_to_ngran_generated_reason (gNB发起的释放)
+- 4: release_due_to_5gc_generated_reason (5GC发起的释放)
+- 5: pdu_session_resource_setup_unsuccessful (PDU会话资源建立不成功)
+- 6: reject_response_from_ue (UE拒绝响应)
+- 10: multiple_pdu_session_id_instances_not_allowed (不允许多个PDU会话ID实例)
+- 11: resource_not_available_for_slice (切片资源不可用)
+- 12: ims_voice_eps_fallback_or_rat_fallback_triggered (IMS语音EPS回退或RAT回退触发)
+
+### transport (传输原因)
+- 0: transport_resource_unavailable (传输资源不可用)
+- 1: unspecified (未指定)
+
+### nas (NAS原因)
+- 0: normal_release (正常释放)
+- 1: authentication_failure (鉴权失败)
+- 2: deregister (去注册)
+- 3: unspecified (未指定)
+
+### protocol (协议原因)
+- 0: transfer_syntax_error (传输语法错误)
+- 1: abstract_syntax_error_reject (抽象语法错误-拒绝)
+- 2: abstract_syntax_error_ignore_and_notify (抽象语法错误-忽略并通知)
+- 3: message_not_compatible_with_receiver_state (消息与接收者状态不兼容)
+- 5: semantic_error (语义错误)
+- 6: unspecified (未指定)
+
+## UE标识字段
+- ngap.RAN_UE_NGAP_ID: gNB分配的RAN侧UE标识
+- ngap.AMF_UE_NGAP_ID: AMF分配的AMF侧UE标识
+- ngap.gNB_UE_NGAP_ID: gNB UE ID (Xn切换时使用)
+
+## 会话相关字段
+- ngap.PDU_Session_ID: PDU会话ID (0-15)
+- ngap.S_NSSAI: 单网络切片选择辅助信息 (SST+SD)
+- ngap.DNN: 数据网络名称
+- ngap.FiveQI: 5G QoS标识符
+- ngap.QoS_Flow_Identifier: QoS流标识符
+- ngap.ARP: 分配和保留优先级
+
+## 位置信息字段
+- ngap.TAI: 跟踪区标识 (PLMN+TAC)
+- ngap.Cell_ID: 小区标识
+- ngap.PLMN_ID: PLMN标识
+
+## 消息类型识别
+### 常见失败消息类型
+- PDUSessionResourceSetupResponse: PDU会话资源建立响应
+- InitialContextSetupFailure: 初始上下文建立失败
+- HandoverPreparationFailure: 切换准备失败
+- UEContextReleaseCommand: UE上下文释放命令
+
+### 成功消息类型
+- PDUSessionResourceSetupRequest: PDU会话资源建立请求
+- InitialContextSetupResponse: 初始上下文建立响应
+- HandoverCommand: 切换命令
+- UEContextReleaseComplete: UE上下文释放完成
+
+## 解析提示
+1. 先看ProcedureCode确定消息类型
+2. 如果有CauseGroup和Cause_value，重点关注失败原因
+3. 通过RAN_UE_NGAP_ID和AMF_UE_NGAP_ID关联UE
+4. 通过PDU_Session_ID关联会话
+5. S_NSSAI和DNN用于判断切片和数据网络
