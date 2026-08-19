@@ -33,3 +33,6 @@ data/*.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+# ===== 本地工作记忆（不对外公开）=====
+.workbuddy/
